@@ -8,6 +8,11 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.info.ProjectInfoProperties.Build;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -48,17 +54,25 @@ public class TopicosController {
 	// @ResponseBody
 	@GetMapping
 	@Transactional
-	public List<TopicoDTO> lista(String nomeCurso) {
+	public Page<TopicoDTO> lista(
+			@RequestParam(required = false) String nomeCurso,
+			@PageableDefault(sort = "id", direction = Direction.DESC, page = 0, size = 10) Pageable pagination
+			//@RequestParam int page,
+			//@RequestParam int size,
+			//@RequestParam String sort
+	) {
 		/**
 		 * Vesão antiga Topico topico = new Topico("Dúvida", "Dúvida com Spring", new
 		 * Curso("Spring", "Programação")); return
 		 * TopicoDTO.converter(Arrays.asList(topico, topico, topico));
 		 */
+		//Pageable pagination = PageRequest.of(page, size, Direction.DESC, sort);
+		
 		if (nomeCurso == null) {
-			List<Topico> topicos = topicoRepository.findAll();
+			Page<Topico> topicos = topicoRepository.findAll(pagination);
 			return TopicoDTO.converter(topicos);
 		} else {
-			List<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso);
+			Page<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso, pagination);
 			return TopicoDTO.converter(topicos);
 		}
 	}
@@ -102,7 +116,7 @@ public class TopicosController {
 		}
 		return ResponseEntity.notFound().build();
 	}
-
+	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> remover(@PathVariable Long id) {
 		Optional<Topico> optional = topicoRepository.findById(id);

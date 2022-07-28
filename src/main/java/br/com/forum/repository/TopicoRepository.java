@@ -2,6 +2,8 @@ package br.com.forum.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,7 +21,7 @@ public interface TopicoRepository extends JpaRepository<Topico, Long> {
 	 * caso existisse um atributo em Topico com esse nome daria comflito, nesse casso ele enxergaria o CursoNome como atributo de Topico
 	 * para referênciar uma entidade e seu atributo dentro do topico, teriamos que colocar Curso_Nome
 	 */
-	List<Topico> findByCursoNome(String nomeCurso);
+	Page<Topico> findByCursoNome(String nomeCurso, Pageable pagination);
 
 	/**
 	 * 

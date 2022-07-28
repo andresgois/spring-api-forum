@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import br.com.forum.modelo.Topico;
 
 public class TopicoDTO {
@@ -33,9 +36,10 @@ public class TopicoDTO {
 		return dataCriacao;
 	}
 
-	public static List<TopicoDTO> converter(List<Topico> topico) {
+	public static Page<TopicoDTO> converter(Page<Topico> topico) {
 		// TODO Auto-generated method stub
-		return topico.stream().map(TopicoDTO::new).collect(Collectors.toList());
+		//return topico.stream().map(TopicoDTO::new).collect(Collectors.toList());
+		return topico.map(TopicoDTO::new);
 	}
 	
 	
