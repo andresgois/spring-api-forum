@@ -63,8 +63,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	// Configuração de recursos estáticos (js, css, imagens, etc...) | se fosse utilizar o Tymelif por exemplo
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		// TODO Auto-generated method stub
-		//super.configure(web);
+	    web.ignoring()
+	        .antMatchers("/**.html", "/v2/api-docs", "/webjars/**", "/configuration/**", "/swagger-resources/**");
 	}
 	
 	public static void main(String[] args) {
