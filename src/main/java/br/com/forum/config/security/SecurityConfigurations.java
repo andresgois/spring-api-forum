@@ -51,11 +51,15 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.GET, "/topicos").permitAll()
 			.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
 			.antMatchers(HttpMethod.POST, "/auth").permitAll()
+			.antMatchers("/h2-console/**").permitAll()
 			.antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+			.antMatchers(HttpMethod.DELETE, "/topicos/*").hasRole("MODERADOR")
 			.anyRequest().authenticated()
 			.and().csrf().disable()
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, usuarioRepository), UsernamePasswordAuthenticationFilter.class);
+			.and().headers().frameOptions().sameOrigin() // para liberar o h2
+			.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, usuarioRepository), 
+					UsernamePasswordAuthenticationFilter.class);
 			
 			//.and().formLogin();// sessão tradicional com login
 	}
