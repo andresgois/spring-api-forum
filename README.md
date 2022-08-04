@@ -84,6 +84,17 @@ As configurações do Swagger devem ser feitas criando-se uma classe chamada Swa
 
 - [Acessar Documentação](http://localhost:8080/swagger-ui.html)
 
+### Trabalhando com roles
+- Para atualizar a versão do Spring Boot na aplicação, basta alterar a tag <version> da tag <parent>, no arquivo pom.xml.
+- É importante ler as release notes das novas versões do Spring Boot, para identificar possíveis quebras de compatibilidades ao atualizar a aplicação.
+- É possível restringir o acesso a determinados endpoints da aplicação, de acordo com o perfil do usuário autenticado, utilizando o método hasRole(“NOME_DO_ROLE”) nas configurações de segurança da aplicação.
+
+### Profiles anotation
+- Profiles devem ser utilizados para separar as configurações de cada tipo de ambiente, tais como desenvolvimento, testes e produção.
+- A anotação @Profile serve para indicar ao Spring que determinada classe deve ser carregada apenas quando determinados profiles estiverem ativos.
+- É possível alterar o profile ativo da aplicação por meio do parâmetro -Dspring.profiles.active.
+- Ao não definir um profile para a aplicação, o Spring considera que o profile ativo dela e o profile de nome default.
+
 ### Informações gerais
 
 ![Versões de dependências](./assets/versoes.png)
