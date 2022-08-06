@@ -106,6 +106,27 @@ As configurações do Swagger devem ser feitas criando-se uma classe chamada Swa
 - Para conseguir injetar o MockMvc devemos anotar a classe de teste com @AutoConfigureMockMvc.
 
 
+### Gerando jar e war
+- O build da aplicação é realizado via maven, com o comando mvn clean package.
+- Ao realizar o build, por padrão será criado um arquivo .jar.
+- É possível passar parâmetros para as configurações da aplicação via variáveis de ambiente.
+- É possível alterar o build para criar um arquivo .war, para deploy em servidores de aplicações.
+
+- Se tiver o maven instalado, vá na raiz do projeto e dê
+```
+mvn clean package
+```
+- Pra rodar a aplicação, entre na pasta target e rode o comando abaixo
+
+```
+java -jar forum-0.0.1-SNAPSHOT.ja
+```
+- Pra rodar a aplicação definindo o ambiente
+
+```
+java -jar -Dspring.profiles.active=prod forum.jar
+```
+
 ### Informações gerais
 
 ![Versões de dependências](./assets/versoes.png)
