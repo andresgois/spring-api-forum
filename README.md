@@ -127,6 +127,53 @@ java -jar forum-0.0.1-SNAPSHOT.ja
 java -jar -Dspring.profiles.active=prod forum.jar
 ```
 
+### Configurando Docker
+- É possível utilizar o Docker para criação de imagens e de containers para aplicações que utilizam Java com Spring Boot.
+- Devemos criar um arquivo Dockerfile no diretório raiz da aplicação, para ensinar ao Docker como deve ser gerada a imagem dela.
+- É possível passar as variáveis de ambiente utilizadas pela aplicação para o container Docker.
+- É possível realizar o deploy de aplicações Java com Spring Boot em ambientes Cloud, como o Heroku.
+- Cada provedor Cloud pode exigir diferentes configurações adicionais a serem realizadas na aplicação, para que ela seja executada sem nenhum tipo de problema.
+
+```
+docker build -t alura/forum .
+
+docker images
+
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE='prod' -e FORUM_DATABASE_URL='jdbc:h2:mem:alura-forum' -e FORUM_DATABASE_USERNAME='sa' -e FORUM_DATABASE_PASSWORD='' -e FORUM_JWT_SECRET='123456' alura/forum
+```
+
+#### Deploy no Heroku
+1 - heroku login
+2- heroku container:login
+3- heroku create app-alura-forum
+4- heroku git:remote -a app-alura-forum
+6- Adicionar dados de porta e quantidade de memória
+```
+ENTRYPOINT ["java","Xmx512m","-jar","-Dserver.port=${PORT}","/app.jar"]
+```
+7- Adicionar configuração no properties
+    - application-prod.properties
+```
+server.port=${PORT}
+```
+8- Criar variáveis de ambiente na heroku
+    - Entre no painel da aplicação
+    - settings
+    - Reveal Config Vars
+        - nome e valor das chaves
+```
+PORT                    : 8080
+SPRING_PROFILES_ACTIVE  : prod
+FORUM_DATABASE_URL      : jdbc:h2:mem:alura-forum
+FORUM_DATABASE_USERNAME : sa
+FORUM_DATABASE_PASSWORD :
+FORUM_JWT_SECRET        : safmsfuirofrsmfr
+```
+9- heroku container:push web 
+10- heroku container:release web 
+11- heroku open
+12- heroku logs --tail
+
 ### Informações gerais
 
 ![Versões de dependências](./assets/versoes.png)
@@ -141,3 +188,4 @@ java -jar -Dspring.profiles.active=prod forum.jar
 - [Api para o actuator](https://codecentric.github.io/spring-boot-admin/current/)
 - [Swagger](https://swagger.io/)
 - [Spring Fox](https://springfox.github.io/springfox/)
+- [Container Registry & Runtime (Docker Deploys)](https://devcenter.heroku.com/articles/container-registry-and-runtime)
