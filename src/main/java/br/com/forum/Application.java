@@ -13,15 +13,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSpringDataWebSupport // Pegar dados de páginação do Pageable
 @EnableCaching				// habilita o uso de cache
 @EnableSwagger2
-public class Application extends SpringBootServletInitializer{
-
+//public class Application extends SpringBootServletInitializer{
+public class Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
 	// Tudo isso para gerar um war
-	@Override
+	/*@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
 		return builder.sources(Application.class);
-	}
+	}*/
 }
