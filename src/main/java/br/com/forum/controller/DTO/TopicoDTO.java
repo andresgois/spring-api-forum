@@ -37,10 +37,7 @@ public class TopicoDTO {
 	}
 
 	public static Page<TopicoDTO> converter(Page<Topico> topico) {
-		// TODO Auto-generated method stub
 		//return topico.stream().map(TopicoDTO::new).collect(Collectors.toList());
 		return topico.map(TopicoDTO::new);
 	}
-	
-	
 }
