@@ -1,4 +1,4 @@
-# API de Forúm
+# API de Fórum
 
 ## Criação do projeto
 - [Criação do projeto pelo site](https://start.spring.io/)
