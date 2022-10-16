@@ -1,16 +1,30 @@
-## Macetes
+# API de Forúm
 
-### BeanValidation
-- Para fazer validações das informações enviadas pelos clientes da API, podemos utilizar a especificação Bean Validation, com as anotações @NotNull, @NotEmpty, @Size, dentre outras;
-- Para o Spring disparar as validações do Bean Validation e devolver um erro 400, caso alguma informação enviada pelo cliente esteja inválida, devemos utilizar a anotação @Valid;
-- Para interceptar as exceptions que forem lançadas nos métodos das classes controller, devemos criar uma classe anotada com @RestControllerAdvice;
-- Para tratar os erros de validação do Bean Validation e personalizar o JSON, que será devolvido ao cliente da API, com as mensagens de erro, devemos criar um método na classe @RestControllerAdvice e anotá-lo com @ExceptionHandler e @ResponseStatus.
+## Criação do projeto
+- [Criação do projeto pelo site](https://start.spring.io/)
+	- Grupo
+		- Organização, Exemplo: br.com.projeto
+	- Artifact
+		- Nome do projeto
 
-### Transactional
-- Ao finalizar o método, o Spring efetuará o commit automático da transação, caso nenhuma exception tenha sido lançada.
-- Métodos anotados com ```@Transactional``` serão executados dentro de um contexto transacional.
+## Acesso a aplicação
+- [URL](http://localhost:8080/)
+- [Console H2](http://localhost:8080/h2-console)
 
-### Annotations
+## Notações
+- @RequestMapping("/")
+	- path do método ou do controller
+- @ResponseBody
+	- Devolve a string direto para o navegador
+	- Se não existir ele vai enteder que será uma página para se redirecionada
+- @Enumerated(EnumType.STRING)
+	- Grava no banco o valor do Enum
+- @RequestBody
+    - Pega os dados do corpo da requisição
+- @PathVariable
+    - Indica que vem um parametro da URL
+- @Transactional
+    - Comitar a transação no final
 - Para receber parâmetros dinâmicos no path da URL, devemos utilizar a anotação @PathVariable;
 - Para mapear requisições do tipo PUT, devemos utilizar a anotação @PutMapping;
 - Para fazer o controle transacional automático, devemos utilizar a anotação @Transactional nos métodos do controller;
@@ -18,6 +32,171 @@
 - Para tratar o erro 404 na classe controller, devemos utilizar o método findById, ao invés do método getOne, e utilizar a classe ResponseEntity para montar a resposta de not found;
 - O método getOne lança uma exception quando o id passado como parâmetro não existir no banco de dados;
 - O método findById retorna um objeto Optional<>, que pode ou não conter um objeto.
+
+## RestController x Controller
+- @Controller é usado para marcar classes como Spring MVC Controller.
+- @RestController é uma anotação de conveniência que não faz nada mais do que adicionar as anotações @Controller e @ResponseBody 
+- Se você estiver familiarizado com os serviços REST, sabe que a diferença fundamental entre um aplicativo web e uma API REST é que a resposta de um aplicativo da web é uma visualização geral de HTML + CSS + JavaScript enquanto a API REST apenas retorna dados em forma de JSON ou XML
+
+## DTO - Objeto de Transferencia de Dados, alguns usam  VO Value Object
+- Data transfer object design pattern é um padrão de arquitetura de objetos que agregam e encapsulam dados para transferência.
+- Não é uma boa prática devolver em uma listagem uma Entidade, por isso usamos o DTO para devolve os objetos.
+
+## Ligações
+> Exemplo Topicos
+- ligação Topico -> Autor
+- @ManyToOne
+```mermaid
+    flowchart LR
+
+    subgraph T1 [Muitos topicos para um autor]
+        aut_Travis -- Criando uma API --> Topico_API
+        aut_Travis -- Usando o CASE no Oracle --> Topico_Banco
+    end
+
+    style aut_Travis fill:#ffff80,stroke:#000000,stroke-width:2px,color:#000000,stroke-dasharray: 0 0
+
+    style T1 fill:#ffffff,color:#000000
+```
+
+- ligação Topico -> Respostas
+- @OneToMany(mappedBy = "topico")
+```mermaid
+    flowchart TD
+
+    subgraph T2 [Um topico pode ter várias respostas]
+        Topico_API -- Verbo POST --> Resp_Id_01
+        Topico_API -- Usando o Verbo PATCH --> Resp_Id_02
+    end
+
+    style Topico_API fill:#408080,stroke:#000,color:#000
+
+    style T2 fill:#ffffff,color:#000000
+```
+
+## Configurações do Banco H2
+```
+# data source
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.url=jdbc:h2:mem:alura-forum
+spring.datasource.username=sa
+spring.datasource.password=
+
+# jpa
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+
+# Nova propriedade a partir da versao 2.5 do Spring Boot:
+spring.jpa.defer-datasource-initialization=true
+
+# h2
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+```
+## Repository
+- O **JpaRepository** utiliza de alguns padrões para busca no banco de dados, como por exemplo:
+    - findById: Busca por Id especifico
+    - findAll: Trás todos os campos
+- Também é possível personalizar as consultas, no caso da entidade tópico que tem uma ligação com o curso, poderia fazer o seguinte:
+    - findBy + Entidade + Atributo da entidade
+        - *findByCursoNome*
+    - Para atributo da entidade tópico
+        - *findByTitulo*
+    - Caso tenha um atributo em titulo com o nome de **cursoNome**, então em sua consulta personalizada coloque o seguinte:
+        - *findByCurso_nome*
+- Consultas personalisadas, não utilizando a convenção do Spring
+- JPQL significa Java Persistence Query Language. 
+- Ele é usado para criar consultas contra entidades para armazenar em um banco de dados relacional.
+
+```
+	@Query("SELECT t FROM Topico t WHERE t.curso.nome = :nomeCurso")
+	List<Topico> carregarPorNomeDoCurso(@Param("nomeCurso") String nomeCurso);
+```
+
+## Retorno de resposta de criação 201
+- Semântica do **create**
+```
+URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+return ResponseEntity.created(uri).body(new TopicoDTO(topico));
+```
+- No corpo da resposta você  devolve
+    - Código 201.
+    - Cabeça location com a url do novo recurso.
+    - Uma representação do novo recuros que acabou de ser criado.
+- Passado no parâmetro da requisição **UriComponentsBuilder uriBuilder**
+    - Ele pega a URI base
+- Pega o Id através do *topico.getId()* e coloca no *{id}*
+- Depois converte tudo em uma URI
+
+## BeanValidatio
+### Dependência
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+### Notações
+- Para fazer validações das informações enviadas pelos clientes da API, podemos utilizar a especificação Bean Validation, Validações para o DTO
+- **@NotEmpty**
+    - Campo não pode ser vazio
+- **@NotNull **
+    - Campo não pode ser Null
+- **@Length(min = 5)**
+    - amanho mínimo do campo
+> Para as validações funcionarem e necessário adicionar a notação **@Valid** nos parâmetros do método do recurso.
+
+- Para interceptar as exceptions que forem lançadas nos métodos das classes controller, devemos criar uma classe anotada com @RestControllerAdvice;
+
+- Para tratar os erros de validação do Bean Validation e personalizar o JSON, que será devolvido ao cliente da API, com as mensagens de erro, devemos criar um método na classe @RestControllerAdvice e anotá-lo com @ExceptionHandler e @ResponseStatus.
+```
+@Autowired
+	private MessageSource messageSource;
+
+	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public List<ErroDeFormularioDTO> handle(MethodArgumentNotValidException exception) {
+		List<ErroDeFormularioDTO> dto = new ArrayList<>();
+		
+		List<FieldError> fieldErrors = exception.getBindingResult().getFieldErrors();
+		
+		fieldErrors.forEach(e -> {
+			String mensagem = messageSource.getMessage(e, LocaleContextHolder.getLocale());
+			ErroDeFormularioDTO erro = new ErroDeFormularioDTO(e.getField(), mensagem);
+			dto.add(erro);
+		});
+		
+		return dto;
+	}
+```
+- Neste exemplo foi criado um DTo para retorno do erro.
+- Pega todos os erros dos campos do formulário
+    - exception.getBindingResult().getFieldErrors();
+- Pega o Idioma do cliente
+    - messageSource
+- Pega o locale do cliente
+    - LocaleContextHolder.getLocale()
+- Passa o Locale através da requisição
+    - Adicione aos Headers
+        - Accept-Language: en-US
+
+### Transactional
+- Ao finalizar o método, o Spring efetuará o commit automático da transação, caso nenhuma exception tenha sido lançada.
+- Métodos anotados com ```@Transactional``` serão executados dentro de um contexto transacional.
+
+## Optional
+- é uma classe que foi implementada no Java 8, que tem o objetivo de simplificar os códigos, facilitando a vida dos desenvolvedores. O Optional nos ajuda a evitar os erros NullPointerException, tirar a necessidade da verificação (if x != null) e também a escrever um código com menos linhas e mais bonito.
+- Evita exceção
+- 
+```
+Optional<Topico> topico = topicoRepository.findById(id);
+
+if (topico.isPresent()) {
+    return ResponseEntity.ok(new DetalhesDoTopicoDTO(topico.get()));
+}
+
+return ResponseEntity.notFound().build();
+```
 
 ### Paginação
 - Para realizar paginação com Spring Data JPA, devemos utilizar a interface Pageable;
